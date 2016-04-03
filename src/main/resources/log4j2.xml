@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="log4j2.xsd">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss.SSS}[%-5level] [%C{1}::%M] %msg%n" />
+		</Console>
+		<RollingFile name="File" fileName="../logs/jpatest.log" filePattern="../logs/jpatest-%i.log">
+			<PatternLayout>
+				<Pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%6.6X{USER}] [%-5level] [%C{1}::%M] %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="5 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="20" />
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="DEBUG">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="File" />
+		</Root>
+	</Loggers>
+</Configuration>

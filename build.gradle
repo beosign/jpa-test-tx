@@ -1,0 +1,92 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+apply plugin: 'war'
+
+// Workaround: Gradle always uses default JRE container
+eclipse {
+    classpath {
+         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8'
+    }
+}
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+    	url "http://repository.primefaces.org"
+    }
+} 
+
+configurations {
+    providedRuntime
+}
+
+sourceSets {
+    generated.java.srcDirs=['src/generated/java']
+    main {
+        java { srcDir 'src/main/java' }
+        resources { srcDir 'src/main/resources' }
+    }
+    test {
+        java { srcDir 'src/test/java' }
+        resources { srcDir 'src/test/resources' }
+    }
+	integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/int-test/java')
+        }
+        resources.srcDir file('src/int-test/resources')
+    }    
+}
+
+
+
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+dependencies {
+  	compile 'org.apache.logging.log4j:log4j-api:2.3'
+  	compile 'org.apache.logging.log4j:log4j-core:2.3'
+  	compile 'org.primefaces:primefaces:5.3'
+  	compile 'org.apache.commons:commons-lang3:3.4'
+  	compile 'commons-beanutils:commons-beanutils:1.9.2'
+  
+	providedCompile 'javax:javaee-api:7.0'
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    
+    testCompile 'junit:junit:4.+'
+   
+    integrationTestCompile sourceSets.main.output
+    integrationTestCompile configurations.testCompile
+	integrationTestCompile sourceSets.test.output
+    integrationTestRuntime configurations.testRuntime
+
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+
+compileJava.source sourceSets.generated.java, sourceSets.main.java
+
+integrationTest.mustRunAfter test
+
+
